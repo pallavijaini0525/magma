@@ -2,6 +2,7 @@ from pathlib import Path
 from os.path import exists
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from copy import deepcopy
 from typing import Literal, Optional, List
 from torchtyping import TensorType
@@ -21,6 +22,12 @@ from .sampling import generate
 from .utils import build_labels, is_url, print_main, download_checkpoint
 from .image_input import ImageInput
 from .transforms import get_transforms
+## PJ 
+from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
+
+import habana_frameworks.torch.core as htcore
+import habana_frameworks.torch as htorch
+## PJ 
 
 # ------------------------- Magma main class ----------------------------------
 
@@ -28,6 +35,8 @@ from .transforms import get_transforms
 class Magma(nn.Module):
     def __init__(self, config, device=None):
         super().__init__()
+
+        adapt_transformers_to_gaudi() # PJ called the function
 
         if isinstance(config, (str, Path)):
             config = MultimodalConfig.from_yml(
@@ -37,7 +46,7 @@ class Magma(nn.Module):
             assert isinstance(config, MultimodalConfig)
 
         self.device = device or torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu"
+            "cuda" if torch.cuda.is_available() else "hpu" # PJ updated to hpu
         )
         self.config = config
         self.lm = get_gptj() #.to(self.device)
@@ -292,6 +301,13 @@ class Magma(nn.Module):
         sd = torch.load(checkpoint_path, map_location=torch.device("cpu"))
         if "module" in sd.keys():
             sd = sd["module"]
+
+        if 'lm.lm_head.weight' in sd:
+            old_vocab_size = sd['lm.lm_head.weight'].shape[0]
+            new_vocab_size = model.lm.get_input_embeddings().weight.shape[0]
+            if old_vocab_size != new_vocab_size:
+                print("adjusting the head weight", old_vocab_size)
+                sd['lm.lm_head.weight'] = F.pad(sd['lm.lm_head.weight'],(0, 0, 0, new_vocab_size - old_vocab_size))
 
         print_main(f'loading magma checkpoint from: {checkpoint_path}')
         model.load_state_dict(sd, strict=False)

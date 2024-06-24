@@ -7,12 +7,19 @@ import timm
 import clip
 from functools import partial
 
+## PJ 
+import habana_frameworks.torch.core as htcore
+import habana_frameworks.torch as htorch
+## PJ 
 # ----------------------------- Utils --------------------------------------
 
-clip.model.LayerNorm = (
+
+# PJ chnaged from clip.model.LayerNorm to clip.LayerNorm
+
+clip.LayerNorm = (
     nn.LayerNorm
 )  # we need to patch this for clip to work with deepspeed
-patch_typeguard()  # needed for torchtyping typechecks to work
+#patch_typeguard()  # needed for torchtyping typechecks to work
 
 
 class Lambda(torch.nn.Module):

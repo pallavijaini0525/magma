@@ -4,7 +4,7 @@ from magma.image_input import ImageInput
 model = Magma.from_checkpoint(
     config_path = "configs/MAGMA_v1.yml",
     checkpoint_path = "./mp_rank_00_model_states.pt",
-    device = 'cuda:0'
+    device = 'hpu' #PJ updated to use hpu
 )
 
 inputs =[

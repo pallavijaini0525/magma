@@ -4,6 +4,10 @@ from PIL import ImageOps
 import PIL
 import random
 
+## PJ 
+import habana_frameworks.torch.core as htcore
+import habana_frameworks.torch as htorch
+## PJ 
 
 def pad_to_size(x, size=256):
     delta_w = size - x.size[0]

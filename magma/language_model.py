@@ -3,6 +3,12 @@ from transformers import GPTNeoForCausalLM, AutoConfig, GPT2LMHeadModel
 from .utils import print_main
 from pathlib import Path
 from transformers.modeling_utils import no_init_weights
+from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
+
+## PJ 
+import habana_frameworks.torch.core as htcore
+import habana_frameworks.torch as htorch
+## PJ 
 
 LANGUAGE_MODELS = [
     "gptj",

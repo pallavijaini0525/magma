@@ -11,6 +11,9 @@ from collections import defaultdict
 from torchtyping import TensorType
 import gdown
 
+#PJ - added transformers adapt
+from optimum.habana.transformers.modeling_utils import adapt_transformers_to_gaudi
+#PJ
 
 def is_main():
     if dist.is_initialized():
@@ -46,7 +49,8 @@ def get_tokenizer(name="gpt2", sequence_length=2048):
     """
     if name == "gpt2":
         tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
-        tokenizer.pad_token_id = tokenizer.eos_token
+        #tokenizer.pad_token_id = tokenizer.eos_token - PJ
+        tokenizer.pad_token = tokenizer.eos_token
         tokenizer.padding_side = "right"
         tokenizer.model_max_length = sequence_length
         # setup lm settings
@@ -73,6 +77,7 @@ def parse_args():
 
     args = parser.parse_args()
     args.deepspeed = True
+    adapt_transformers_to_gaudi() #PJ called the function
     return args
 
 

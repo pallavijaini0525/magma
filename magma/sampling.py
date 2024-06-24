@@ -3,6 +3,10 @@ import torch.nn.functional as F
 from torchtyping import TensorType
 from typing import Union, List
 
+## PJ 
+import habana_frameworks.torch.core as htcore
+import habana_frameworks.torch as htorch
+## PJ 
 
 def top_p_filter(logits: TensorType[..., "vocab"], threshold: float = 0.9):
     """

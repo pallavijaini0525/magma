@@ -4,7 +4,10 @@ from torchtyping import TensorType
 from einops import rearrange
 from .image_encoders import get_image_encoder
 from .config import MultimodalConfig
-
+## PJ 
+import habana_frameworks.torch.core as htcore
+import habana_frameworks.torch as htorch
+## PJ 
 # ------------------------- Image prefix ----------------------------------
 
 # for models that are fixed to a specific sequence lengths (i.e clip models with no pooling), the sequence lengths are below
@@ -40,7 +43,7 @@ class ImagePrefix(nn.Module):
     ):
         super().__init__()
         self.device = device or torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu"
+            "cuda" if torch.cuda.is_available() else "hpu"  #PJ updated to hpu
         )
         self.config = config
         self.encoder_type = config.encoder_name
